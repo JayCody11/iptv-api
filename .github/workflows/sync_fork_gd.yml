@@ -1,0 +1,25 @@
+name: Sync Fork Schedule
+
+on:
+  schedule:
+    - cron: '30 * * * *'
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout target branch
+        uses: actions/checkout@v3
+        with:
+          ref: gd 
+
+      - name: Sync fork with upstream
+        run: |
+          git config user.name "JayCody11"
+          git config user.email "wujiang199109@gmail.com"
+          git remote add upstream https://github.com/Guovin/iptv-api.git
+          git fetch upstream
+          git checkout gd
+          git merge upstream/gd
+          git push origin gd --force
