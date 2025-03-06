@@ -19,14 +19,30 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0  # 关键：完整克隆仓库
+          fetch-depth: 0  # 关键：完整克隆仓库，防止 shallow update 错误
 
       - name: Add GitCode remote
         run: |
-          git remote remove gitcode || true  # 移除已存在的远程仓库
+          git remote remove gitcode || true  # 先移除已存在的远程仓库（避免冲突）
           git remote add gitcode https://oauth2:${{ secrets.GITCODE_PAT }}@gitcode.com/JayCody11/iptv-api.git
 
-      - name: Push to GitCode
+      - name: Commit only result files
         run: |
-          git push gitcode HEAD:refs/heads/${{ github.ref_name }}  # 推送当前分支
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
 
+          # 只添加指定文件
+          if [[ -f "output/result.m3u" ]]; then
+            git add -f "output/result.m3u"
+          fi
+          if [[ -f "output/result.txt" ]]; then
+            git add -f "output/result.txt"
+          fi
+
+          # 如果有改动就提交
+          if ! git diff --staged --quiet; then
+            git commit -m "Sync result files to GitCode"
+            git push gitcode HEAD:refs/heads/${{ github.ref_name }}
+          else
+            echo "No changes to commit."
+          fi
