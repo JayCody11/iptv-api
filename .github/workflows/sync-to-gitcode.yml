@@ -3,7 +3,7 @@ name: Sync to GitCode
 on:
   push:
     branches:
-      - main
+      - master
       - gd
 
 jobs:
