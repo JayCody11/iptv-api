@@ -26,11 +26,11 @@ jobs:
           git remote remove gitcode || true  # 先删除，防止已存在
           git remote add gitcode https://oauth2:${{ secrets.GITCODE_PAT }}@gitcode.com/JayCody11/iptv-api.git
 
-      - name: Force push main branch to GitCode
+      - name: Force push master branch to GitCode main
         run: |
-          git fetch origin main --prune
-          git reset --hard origin/main  # 确保本地 main 和 GitHub 保持一致
-          git push --force gitcode HEAD:refs/heads/main  # **强制推送到 GitCode 的 main 分支**
+          git fetch origin master --prune  # **改成 master**
+          git reset --hard origin/master  # **确保本地 master 和 GitHub 一致**
+          git push --force gitcode HEAD:refs/heads/main  # **强制推送到 GitCode main 分支**
 
       - name: Commit only result files
         run: |
@@ -41,4 +41,3 @@ jobs:
           git add -f output/result.m3u output/result.txt
           git commit --allow-empty -m "Sync result files to GitCode"
           git push --force gitcode HEAD:refs/heads/main  # **再次强制推送**
-
