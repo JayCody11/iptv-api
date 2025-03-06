@@ -1,43 +1,52 @@
-name: Sync to GitCode
+name: Sync Result Files to GitCode
 
 on:
   push:
     branches:
-      - master
-      - gd
+      - master  # 监控的分支名
+    paths:       # 精准路径过滤
+      - 'output/result.txt'
+      - 'output/result.m3u'
   workflow_run:
     workflows:
       - "Update schedule"
       - "Sync Fork Schedule"
-    types:
-      - completed  
+    types: [completed]
 
 jobs:
-  sync:
+  sync-files:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout Repository
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0  # 关键：完整克隆仓库，防止 shallow update 错误
+          fetch-depth: 0  # 完整克隆历史记录
 
-      - name: Add GitCode remote
+      - name: Configure Git Identity
         run: |
-          git remote remove gitcode || true  # 先删除，防止已存在
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "github-actions@users.noreply.github.com"
+
+      - name: Add GitCode Remote
+        run: |
+          git remote remove gitcode || true
           git remote add gitcode https://oauth2:${{ secrets.GITCODE_PAT }}@gitcode.com/JayCody11/iptv-api.git
 
-      - name: Force push master branch to GitCode main
+      - name: Check File Changes
+        id: check_files
         run: |
-          git fetch origin master --prune  # **改成 master**
-          git reset --hard origin/master  # **确保本地 master 和 GitHub 一致**
-          git push --force gitcode HEAD:refs/heads/main  # **强制推送到 GitCode main 分支**
+          git diff --quiet HEAD^ HEAD -- output/ || echo "has_changes=true" >> $GITHUB_OUTPUT
 
-      - name: Commit only result files
+      - name: Commit and Push Changes
+        if: steps.check_files.outputs.has_changes == 'true'
         run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-
-          mkdir -p output
+          # 拉取最新代码防止冲突
+          git fetch origin master
+          git reset --hard origin/master
+          
+          # 仅提交目标文件
           git add -f output/result.m3u output/result.txt
-          git commit --allow-empty -m "Sync result files to GitCode"
-          git push --force gitcode HEAD:refs/heads/main  # **再次强制推送**
+          git commit -m "chore: auto-sync result files"
+          
+          # 推送到 GitCode
+          git push gitcode HEAD:main
