@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - master
-      - gd
   workflow_run:
     workflows:
       - "Update schedule"
@@ -42,7 +41,7 @@ jobs:
           # 如果有改动就提交
           if ! git diff --staged --quiet; then
             git commit -m "Sync result files to GitCode"
-            git push gitcode HEAD:refs/heads/${{ github.ref_name }}
+            git push gitcode HEAD:refs/heads/main  # **强制推送到 GitCode 的 main 分支**
           else
             echo "No changes to commit."
           fi
