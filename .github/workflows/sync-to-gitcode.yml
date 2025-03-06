@@ -1,0 +1,23 @@
+name: Sync to GitCode
+
+on:
+  push:
+    branches:
+      - main
+      - gd
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Add GitCode remote
+        run: |
+          git remote remove gitcode || true  # 移除已存在的远程仓库
+          git remote add gitcode https://oauth2:${{ secrets.GITCODE_PAT }}@gitcode.com/JayCody11/iptv-api.git
+
+      - name: Push to GitCode
+        run: |
+          git push gitcode HEAD:refs/heads/${{ github.ref_name }}  # 推送当前分支
