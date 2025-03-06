@@ -23,21 +23,14 @@ jobs:
 
       - name: Add GitCode remote
         run: |
-          if git remote | grep -q gitcode; then
-            git remote remove gitcode
-          fi
+          git remote remove gitcode || true  # 先删除，防止已存在
           git remote add gitcode https://oauth2:${{ secrets.GITCODE_PAT }}@gitcode.com/JayCody11/iptv-api.git
 
-      - name: Pull latest changes from GitCode
+      - name: Force push main branch to GitCode
         run: |
-          git fetch gitcode main --prune
-          git merge --no-edit gitcode/main  # 保留远程的更新，防止冲突
-
-      - name: Regenerate result files (如果需要)
-        run: |
-          # 这里可以放生成 result.m3u 和 result.txt 的脚本
-          echo "#EXTM3U" > output/result.m3u
-          echo "Generated at $(date)" > output/result.txt
+          git fetch origin main --prune
+          git reset --hard origin/main  # 确保本地 main 和 GitHub 保持一致
+          git push --force gitcode HEAD:refs/heads/main  # **强制推送到 GitCode 的 main 分支**
 
       - name: Commit only result files
         run: |
@@ -47,4 +40,5 @@ jobs:
           mkdir -p output
           git add -f output/result.m3u output/result.txt
           git commit --allow-empty -m "Sync result files to GitCode"
-          git push gitcode HEAD:refs/heads/main  # 推送到 GitCode 的 main 分支
+          git push --force gitcode HEAD:refs/heads/main  # **再次强制推送**
+
