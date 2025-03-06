@@ -5,6 +5,12 @@ on:
     branches:
       - master
       - gd
+  workflow_run:
+    workflows:
+      - "Update schedule"
+      - "Sync Fork Schedule"
+    types:
+      - completed  
 
 jobs:
   sync:
