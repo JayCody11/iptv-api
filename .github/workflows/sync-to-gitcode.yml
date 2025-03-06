@@ -32,24 +32,32 @@ jobs:
           git remote remove gitcode || true
           git remote add gitcode https://oauth2:${{ secrets.GITCODE_PAT }}@gitcode.com/JayCody11/iptv-api.git
 
-      - name: Detect Default Branch
+      - name: Detect GitCode Default Branch
         id: detect_branch
         run: |
-          # 获取远程仓库的默认分支名称
-          default_branch=$(git remote show gitcode | grep "HEAD branch" | awk '{print $3}')
+          # 获取远程仓库的HEAD引用（更可靠的方法）
+          default_branch=$(git ls-remote --symref gitcode HEAD | awk '/^ref:/ { sub(/refs\/heads\//, "", $2); print $2 }')
+          # 若无法获取则默认使用main
+          if [ -z "$default_branch" ]; then default_branch="main"; fi
           echo "default_branch=${default_branch}" >> $GITHUB_OUTPUT
+          echo "Detected branch: ${default_branch}"
 
       - name: Fetch GitCode Remote
         run: git fetch gitcode
 
-      - name: Check File Changes Against GitCode
+      - name: Check File Changes
         id: check_files
         run: |
-          # 使用动态获取的分支名称进行比较
-          git diff --quiet HEAD gitcode/${{ steps.detect_branch.outputs.default_branch }} -- output/ || echo "has_changes=true" >> $GITHUB_OUTPUT
+          # 使用安全变量引用方式（避免括号导致的语法问题）
+          git diff --quiet HEAD gitcode/${DEFAULT_BRANCH} -- output/ || echo "has_changes=true" >> $GITHUB_OUTPUT
+          echo "Checked changes against gitcode/${DEFAULT_BRANCH}"
+        env:
+          DEFAULT_BRANCH: ${{ steps.detect_branch.outputs.default_branch }}
 
       - name: Push Changes to GitCode
         if: steps.check_files.outputs.has_changes == 'true'
         run: |
-          # 使用动态分支名称进行推送
-          git push gitcode HEAD:${{ steps.detect_branch.outputs.default_branch }} --force
+          git push gitcode HEAD:${DEFAULT_BRANCH} --force
+          echo "Pushed to gitcode/${DEFAULT_BRANCH}"
+        env:
+          DEFAULT_BRANCH: ${{ steps.detect_branch.outputs.default_branch }}
