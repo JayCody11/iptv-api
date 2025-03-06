@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - gd
   workflow_run:
     workflows:
       - "Update schedule"
@@ -22,26 +23,30 @@ jobs:
 
       - name: Add GitCode remote
         run: |
-          git remote remove gitcode || true  # 先移除已存在的远程仓库（避免冲突）
+          # 先检查是否已存在 gitcode 远程仓库，避免错误
+          if git remote | grep -q gitcode; then
+            git remote remove gitcode
+          fi
           git remote add gitcode https://oauth2:${{ secrets.GITCODE_PAT }}@gitcode.com/JayCody11/iptv-api.git
+
+      - name: Regenerate result files (如果需要)
+        run: |
+          # 这里可以放生成 result.m3u 和 result.txt 的脚本
+          # 如果这些文件是自动生成的，就在这里重新生成
+          echo "#EXTM3U" > output/result.m3u
+          echo "Generated at $(date)" > output/result.txt
 
       - name: Commit only result files
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
 
-          # 只添加指定文件
-          if [[ -f "output/result.m3u" ]]; then
-            git add -f "output/result.m3u"
-          fi
-          if [[ -f "output/result.txt" ]]; then
-            git add -f "output/result.txt"
-          fi
+          # 确保 output 目录存在
+          mkdir -p output
 
-          # 如果有改动就提交
-          if ! git diff --staged --quiet; then
-            git commit -m "Sync result files to GitCode"
-            git push gitcode HEAD:refs/heads/main  # **强制推送到 GitCode 的 main 分支**
-          else
-            echo "No changes to commit."
-          fi
+          # 强制添加文件，即使内容没变
+          git add -f output/result.m3u output/result.txt
+
+          # 提交更改（即使文件内容相同，也会提交）
+          git commit --allow-empty -m "Sync result files to GitCode"
+          git push gitcode HEAD:refs/heads/main  # 推送到 GitCode 的 main 分支
