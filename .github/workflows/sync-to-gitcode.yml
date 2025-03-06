@@ -3,8 +3,8 @@ name: Sync Result Files to GitCode
 on:
   push:
     branches:
-      - master  # 监控的分支名
-    paths:       # 精准路径过滤
+      - master
+    paths:
       - 'output/result.txt'
       - 'output/result.m3u'
   workflow_run:
@@ -20,7 +20,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0  # 完整克隆历史记录
+          fetch-depth: 0
 
       - name: Configure Git Identity
         run: |
@@ -32,21 +32,15 @@ jobs:
           git remote remove gitcode || true
           git remote add gitcode https://oauth2:${{ secrets.GITCODE_PAT }}@gitcode.com/JayCody11/iptv-api.git
 
-      - name: Check File Changes
+      - name: Fetch GitCode Main Branch
+        run: git fetch gitcode main
+
+      - name: Check File Changes Against GitCode
         id: check_files
         run: |
-          git diff --quiet HEAD^ HEAD -- output/ || echo "has_changes=true" >> $GITHUB_OUTPUT
+          git diff --quiet HEAD gitcode/main -- output/ || echo "has_changes=true" >> $GITHUB_OUTPUT
 
-      - name: Commit and Push Changes
+      - name: Push Changes to GitCode
         if: steps.check_files.outputs.has_changes == 'true'
         run: |
-          # 拉取最新代码防止冲突
-          git fetch origin master
-          git reset --hard origin/master
-          
-          # 仅提交目标文件
-          git add -f output/result.m3u output/result.txt
-          git commit -m "chore: auto-sync result files"
-          
-          # 推送到 GitCode
-          git push gitcode HEAD:main
+          git push gitcode HEAD:main --force
