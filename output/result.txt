@@ -701,13 +701,3 @@ CCTV-5+,http://47.76.150.170:50001/TVOD/1000000001000020505/ystenlive/index.m3u8
 快乐垂钓,http://tvbox6.icu/tv/mgtv.php?id=218
 快乐垂钓,http://1.197.127.114:10443/tsfile/live/1068_1.m3u8?key=txiptv&playlive=1&authid=0
 快乐垂钓,http://180.213.174.225:9901/tsfile/live/1028_1.m3u8?key=txiptv&playlive=1&authid=0
-快乐垂钓,http://dassby.qqff.top:99/live/快乐垂钓/index.m3u8
-快乐垂钓,http://phonetx.qing.mgtv.com/nn_live/nn_x64/8.8&/KLCDMPP360.m3u8
-快乐垂钓,http://220.249.114.102:9901/tsfile/live/1021_1.m3u8?key=txiptv&playlive=1&authid=0
-快乐垂钓,rtsp://115.153.245.70/PLTV/88888888/224/3221226834/59781974.smil
-快乐垂钓,rtsp://115.153.254.81/PLTV/88888888/224/3221226834/59781974.smil
-快乐垂钓,rtsp://115.153.240.228:554/PLTV/88888888/224/3221226834/59781974.smil
-快乐垂钓,rtsp://115.153.212.72/PLTV/88888888/224/3221226834/59781974.smil
-JJ斗地主,http://zzy789.xyz/douyu1.php?id=488743
-JJ斗地主,http://huanqiuzhibo.cn/manifest/douyu.php?id=488743
-JJ斗地主,https://lunbo.freetv.top/douyu/488743
