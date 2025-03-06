@@ -32,15 +32,24 @@ jobs:
           git remote remove gitcode || true
           git remote add gitcode https://oauth2:${{ secrets.GITCODE_PAT }}@gitcode.com/JayCody11/iptv-api.git
 
-      - name: Fetch GitCode Main Branch
-        run: git fetch gitcode main
+      - name: Detect Default Branch
+        id: detect_branch
+        run: |
+          # 获取远程仓库的默认分支名称
+          default_branch=$(git remote show gitcode | grep "HEAD branch" | awk '{print $3}')
+          echo "default_branch=${default_branch}" >> $GITHUB_OUTPUT
+
+      - name: Fetch GitCode Remote
+        run: git fetch gitcode
 
       - name: Check File Changes Against GitCode
         id: check_files
         run: |
-          git diff --quiet HEAD gitcode/main -- output/ || echo "has_changes=true" >> $GITHUB_OUTPUT
+          # 使用动态获取的分支名称进行比较
+          git diff --quiet HEAD gitcode/${{ steps.detect_branch.outputs.default_branch }} -- output/ || echo "has_changes=true" >> $GITHUB_OUTPUT
 
       - name: Push Changes to GitCode
         if: steps.check_files.outputs.has_changes == 'true'
         run: |
-          git push gitcode HEAD:main --force
+          # 使用动态分支名称进行推送
+          git push gitcode HEAD:${{ steps.detect_branch.outputs.default_branch }} --force
