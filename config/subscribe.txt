@@ -3,9 +3,7 @@
 
 https://raw.githubusercontent.com/cymz6/AutoIPTV-Hotel/main/lives.txt
 https://raw.githubusercontent.com/mursor1985/LIVE/refs/heads/main/iptv.m3u
-https://raw.githubusercontent.com/JayCody11/tvconfig/refs/heads/main/源1.txt
-https://raw.githubusercontent.com/JayCody11/tvconfig/refs/heads/main/源2.txt
-https://raw.githubusercontent.com/JayCody11/tvconfig/refs/heads/main/源3.txt
+https://raw.githubusercontent.com/JayCody11/tvconfig/refs/heads/main/merged.txt
 # https://raw.githubusercontent.com/suxuang/myIPTV/refs/heads/main/ipv4.m3u
 https://live.zbds.org/tv/iptv4.txt
 https://raw.githubusercontent.com/suxuang/myIPTV/refs/heads/main/咪咕点播.txt
